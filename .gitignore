@@ -1,1 +1,6 @@
 /src/main/resources/inputs/
+
+/src/main/resources/answers/
+/out/
+/.idea/
+/aoc-2023.iml
