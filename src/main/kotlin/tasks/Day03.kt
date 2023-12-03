@@ -7,6 +7,8 @@ class Day03 : Task {
     override val id: Int
         get() = 3
 
+
+    // part one:
     override fun firstPart(lines: Sequence<String>): String {
         val characters = lines.map { it.toList() }.toList()
 
@@ -21,8 +23,7 @@ class Day03 : Task {
             .toString()
     }
 
-
-    fun fillAcceptations(characters: List<List<Char>>): Array<Array<Boolean>> {
+    private fun fillAcceptations(characters: List<List<Char>>): Array<Array<Boolean>> {
         val acceptations = characters
             .map { lineList -> Array(lineList.size) { false } }
             .toTypedArray()
@@ -57,8 +58,7 @@ class Day03 : Task {
         val acceptsBuffer = mutableListOf<Boolean>()
         val numbers = mutableListOf<String>()
 
-        assert(lineChars.size == accepts.size)
-        require(lineChars.size == accepts.size) { -> "lineChars.size != accepts.size" }
+        require(lineChars.size == accepts.size) { "lineChars.size != accepts.size" }
 
         for (i in lineChars.indices) {
             if (charType(lineChars[i]) == CharType.DIGIT) {
@@ -81,6 +81,7 @@ class Day03 : Task {
 
         return numbers.toList()
     }
+
 
     private enum class CharType {
         DIGIT,
@@ -105,4 +106,40 @@ class Day03 : Task {
         } else false
     }
 
+
+    // part two:
+    override fun secondPart(lines: Sequence<String>): String {
+        val linesList = lines.toList()
+        val asteriskPositions = linesList
+            .asSequence()
+            .map { line -> line.toList().withIndex().filter { it.value == '*' } }
+            .withIndex()
+            .flatMap { line -> line.value.asSequence().map { symbol -> line.index to symbol.index } }
+
+        return sequence {
+            for (asterisk in asteriskPositions) {
+                val (row, col) = asterisk
+                val numbers = listOf(row - 1, row, row + 1)
+                    .mapNotNull { linesList.getOrNull(it) }
+                    .map { numbersInLine(it) }
+                    .flatten()
+                    .filter { col in (it.location.first - 1)..(it.location.last + 1) }
+
+                yield(numbers)
+            }
+        }.filter { it.size == 2 }
+            .map { it[0].num * it[1].num }
+            .sum()
+            .toString()
+    }
+
+    private data class PartNumber(val num: Long, val location: IntRange)
+
+    private fun numbersInLine(line: String): List<PartNumber> {
+        val numberRegex = "\\d+".toRegex()
+        return numberRegex.findAll(line)
+            .map { matchResult ->
+                PartNumber(matchResult.value.toLong(), matchResult.range)
+            }.toList()
+    }
 }
