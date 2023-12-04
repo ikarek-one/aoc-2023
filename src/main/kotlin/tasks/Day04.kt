@@ -15,6 +15,12 @@ class Day04 : Task {
             .toString()
     }
 
+    override fun secondPart(lines: Sequence<String>): String {
+        val games = lines.map { parseLine(it) }.toList()
+        val sum = games.sumOf { it.copiedCards(games) } + games.size
+
+        return sum.toString()
+    }
 
     private fun parseLine(line: String): Game {
         val id = line.substringBefore(':').replace("\\D+".toRegex(), "").toInt()
@@ -36,7 +42,7 @@ class Day04 : Task {
         return Game(id, yourNums, winningNums)
     }
 
-    private data class Game(val id: Int, val yourNums: List<Long>, val winningNums: List<Long>) {
+    private class Game(val id: Int, val yourNums: List<Long>, val winningNums: List<Long>) {
         fun winningCount() =
             yourNums.count { it in winningNums }.toLong()
 
@@ -45,12 +51,21 @@ class Day04 : Task {
             return if (n < 1) 0 else pow(2, n - 1)
         }
 
-        fun pow(base: Long, exp: Long): Long {
+        private fun pow(base: Long, exp: Long): Long {
             return when (exp) {
                 0L -> 1
                 1L -> base
                 else -> base * pow(base, exp - 1)
             }
+        }
+
+        fun copiedCards(games: List<Game>): Long {
+            val w = winningCount()
+            return ((id + 1)..(id + w)).asSequence()
+                .map { it.toInt() }
+                .mapNotNull { games.getOrNull(it - 1) }
+                .map { game -> game.copiedCards(games) }
+                .sum() + w
         }
     }
 
