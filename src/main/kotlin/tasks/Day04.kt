@@ -16,13 +16,13 @@ class Day04 : Task {
     }
 
     override fun secondPart(lines: Sequence<String>): String {
-        val games = lines.map { parseLine(it) }.toList()
-        val sum = games.sumOf { it.copiedCards(games) } + games.size
+        val cards = lines.map { parseLine(it) }.toList()
+        val sum = cards.sumOf { it.copiedCards(cards) } + cards.size
 
         return sum.toString()
     }
 
-    private fun parseLine(line: String): Game {
+    private fun parseLine(line: String): Card {
         val id = line.substringBefore(':').replace("\\D+".toRegex(), "").toInt()
         val numberPart = line.substringAfter(':')
         val winningNums =
@@ -39,10 +39,10 @@ class Day04 : Task {
                 .map { it.toLong() }
                 .toList()
 
-        return Game(id, yourNums, winningNums)
+        return Card(id, yourNums, winningNums)
     }
 
-    private class Game(val id: Int, val yourNums: List<Long>, val winningNums: List<Long>) {
+    private class Card(val id: Int, val yourNums: List<Long>, val winningNums: List<Long>) {
         fun winningCount() =
             yourNums.count { it in winningNums }.toLong()
 
@@ -59,12 +59,12 @@ class Day04 : Task {
             }
         }
 
-        fun copiedCards(games: List<Game>): Long {
+        fun copiedCards(cards: List<Card>): Long {
             val w = winningCount()
             return ((id + 1)..(id + w)).asSequence()
                 .map { it.toInt() }
-                .mapNotNull { games.getOrNull(it - 1) }
-                .map { game -> game.copiedCards(games) }
+                .mapNotNull { cards.getOrNull(it - 1) }
+                .map { card -> card.copiedCards(cards) }
                 .sum() + w
         }
     }
