@@ -3,6 +3,7 @@ package tasks
 import base.Task
 
 
+
 class Day09 : Task {
     override val id: Int
         get() = 9
@@ -14,6 +15,18 @@ class Day09 : Task {
             .sum()
             .toString()
     }
+
+    override fun secondPart(lines: Sequence<String>): String {
+        return lines
+            .map { line -> line.split("\\s+".toRegex()).map { it.toLong() } }
+            .map { longs -> extrapolateBackwards(longs) }
+            .onEach { println(">> $it") }
+            .sum()
+            .toString()
+    }
+
+    private fun extrapolateBackwards(seq: List<Long>) =
+        extrapolate(seq.reversed())
 
     private fun extrapolate(seq: List<Long>): Long {
         val differences = mutableListOf(seq.toMutableList())
